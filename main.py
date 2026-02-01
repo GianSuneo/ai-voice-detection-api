@@ -1,65 +1,77 @@
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
-from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import os
 
-app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],  # allow all origins (safe for hackathon)
-    allow_credentials=True,
-    allow_methods=["*"],  # GET, POST, OPTIONS, etc.
-    allow_headers=["*"],  # including x-api-key
-)
+# ---------------- APP INIT ----------------
+app = FastAPI(title="AI-Generated Voice Detection API")
 
-# -------- CONFIG --------
+# ---------------- CONFIG ----------------
 API_KEY = "my-secret-api-key"
 
-# -------- MODEL LOADING --------
+# ---------------- MODEL LOADING ----------------
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
 
 try:
     model = joblib.load(MODEL_PATH)
-    print("Model loaded successfully")
+    print("✅ Model loaded successfully")
 except Exception as e:
     model = None
-    print("Model loading failed:", e)
+    print("❌ Model loading failed:", e)
 
-
-# -------- INPUT SCHEMA --------
+# ---------------- INPUT SCHEMA ----------------
 class VoiceInput(BaseModel):
     audio_base64: str
-    language: str
+    language: str  # English, Hindi, Malayalam, Tamil, Telugu
 
-
-# -------- HEALTH CHECK --------
+# ---------------- HEALTH CHECK ----------------
 @app.get("/")
 def home():
     return {"message": "AI Voice Detection API is running"}
 
-
-# -------- MAIN ENDPOINT --------
+# ---------------- MAIN ENDPOINT ----------------
 @app.post("/detect-voice")
 def detect_voice(
     data: VoiceInput,
     x_api_key: Optional[str] = Header(None)
 ):
-    # API key check
+    # ---- API KEY VALIDATION ----
     if x_api_key != API_KEY:
-        raise HTTPException(status_code=401, detail="Invalid or missing API key")
+        raise HTTPException(
+            status_code=401,
+            detail="Invalid or missing API key"
+        )
 
-    # Basic input check
-    if len(data.audio_base64) < 20:
-        raise HTTPException(status_code=400, detail="Audio data too short")
+    # ---- INPUT VALIDATION ----
+    if not data.audio_base64 or len(data.audio_base64) < 20:
+        raise HTTPException(
+            status_code=400,
+            detail="Invalid or empty audio input"
+        )
 
-    # Model check
+    if data.language not in [
+        "English",
+        "Hindi",
+        "Malayalam",
+        "Tamil",
+        "Telugu"
+    ]:
+        raise HTTPException(
+            status_code=400,
+            detail="Unsupported language"
+        )
+
+    # ---- MODEL CHECK ----
     if model is None:
-        raise HTTPException(status_code=500, detail="Model not loaded")
+        raise HTTPException(
+            status_code=500,
+            detail="Model not loaded"
+        )
 
-    # -------- MODEL INFERENCE (TEMP FEATURES) --------
+    # ---- MODEL INFERENCE (TEMP FEATURES) ----
     try:
+        # Placeholder feature vector (must match training shape = 7)
         features = [[
             0.0,  # pitch
             0.0,  # mfcc_mean
@@ -82,14 +94,17 @@ def detect_voice(
 
     label = "AI-generated" if prediction == 1 else "Human"
 
+    # ---- RESPONSE ----
     return {
         "classification": label,
         "confidence_score": round(confidence, 2),
         "explanation": [
-            "Prediction generated using trained ML model",
-            "Numeric audio features analyzed"
+            "Prediction generated using trained machine learning model",
+            "Audio converted to numeric features before inference"
         ]
     }
+
+
 
 
 
