@@ -65,8 +65,9 @@ try:
         0.0   # bandwidth
     ]]
 
-    prediction = model.predict(features)[0]
-    confidence = float(model.predict_proba(features)[0].max())
+   prediction = model.predict(features)[0]
+    probabilities = model.predict_proba(features)[0]
+    confidence = float(max(probabilities))
 
 except Exception as e:
     raise HTTPException(
@@ -81,9 +82,11 @@ return {
     "classification": label,
     "confidence_score": round(confidence, 2),
     "explanation": [
-        "Prediction generated using trained ML model"
+        "Prediction generated using trained ML model",
+        "Numeric audio features analyzed"
     ]
 }
+
 
 
 
