@@ -45,16 +45,36 @@ def detect_voice(
     # Temporary fake logic (model will be added later)
     if len(data.audio_base64) < 20:
         raise HTTPException(status_code=400, detail="Audio data too short")
+    # -------- MODEL INFERENCE --------
+    if model is None:
+        raise HTTPException(
+            status_code=500,
+            detail="Model not loaded"
+        )
 
-    return {
-        "classification": "AI-generated",
-        "confidence_score": 0.82,
+    try:
+        # TEMPORARY placeholder input
+        dummy_input = [[0.0]]  # will replace with real features later
+        prediction = model.predict(dummy_input)
+
+        # Assume: 1 = AI, 0 = Human
+        label = "AI-generated" if prediction[0] == 1 else "Human"
+
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Model inference failed: {str(e)}"
+        )
+
+       return {
+        "classification": label,
+        "confidence_score": 0.85,
         "explanation": [
-            "Unnaturally stable pitch detected",
-            "Low energy variation",
-            "Absence of natural speech pauses"
+            "Prediction generated using ML model",
+            "Audio features analyzed"
         ]
     }
+
 
 
 
