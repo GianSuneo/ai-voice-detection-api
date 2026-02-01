@@ -1,10 +1,18 @@
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
+from fastapi.middleware.cors import CORSMiddleware
 import joblib
 import os
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # allow all origins (safe for hackathon)
+    allow_credentials=True,
+    allow_methods=["*"],  # GET, POST, OPTIONS, etc.
+    allow_headers=["*"],  # including x-api-key
+)
 
 # -------- CONFIG --------
 API_KEY = "my-secret-api-key"
@@ -82,6 +90,7 @@ def detect_voice(
             "Numeric audio features analyzed"
         ]
     }
+
 
 
 
