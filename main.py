@@ -10,15 +10,16 @@ app = FastAPI()
 API_KEY = "my-secret-api-key"
 
 # -------- MODEL LOADING --------
-MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
+MODEL_PATH = "model.pkl"
 
 try:
     with open(MODEL_PATH, "rb") as f:
         model = pickle.load(f)
-    print("Model loaded successfully")
+    print("✅ Model loaded successfully")
 except Exception as e:
     model = None
-    print("Model loading failed:", e)
+    print("❌ Model loading failed:", e)
+
 
 
 # -------- INPUT SCHEMA --------
@@ -86,6 +87,7 @@ return {
         "Numeric audio features analyzed"
     ]
 }
+
 
 
 
