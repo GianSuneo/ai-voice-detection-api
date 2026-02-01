@@ -3,6 +3,10 @@ from pydantic import BaseModel
 from typing import Optional
 import joblib
 import os
+import base64
+import io
+import numpy as np
+import librosa
 
 # ---------------- APP INIT ----------------
 app = FastAPI(title="AI-Generated Voice Detection API")
@@ -103,6 +107,7 @@ def detect_voice(
             "Confidence score derived from model probability distribution"
         ]
     }
+
 
 
 
