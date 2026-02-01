@@ -20,7 +20,6 @@ except Exception as e:
     print("Model loading failed:", e)
 
 
-
 # -------- INPUT SCHEMA --------
 class VoiceInput(BaseModel):
     audio_base64: str
@@ -51,41 +50,40 @@ def detect_voice(
     if model is None:
         raise HTTPException(status_code=500, detail="Model not loaded")
 
-    # -------- MODEL INFERENCE (TEMP) --------
-   # -------- MODEL INFERENCE (TEMP) --------
-try:
-    # TEMP feature vector (must match training feature count = 7)
-    features = [[
-        0.0,  # pitch
-        0.0,  # mfcc_mean
-        0.0,  # spectral_flatness
-        0.0,  # zcr
-        0.0,  # rms
-        0.0,  # centroid
-        0.0   # bandwidth
-    ]]
+    # -------- MODEL INFERENCE (TEMP FEATURES) --------
+    try:
+        features = [[
+            0.0,  # pitch
+            0.0,  # mfcc_mean
+            0.0,  # spectral_flatness
+            0.0,  # zcr
+            0.0,  # rms
+            0.0,  # centroid
+            0.0   # bandwidth
+        ]]
 
-   prediction = model.predict(features)[0]
-    probabilities = model.predict_proba(features)[0]
-    confidence = float(max(probabilities))
+        prediction = model.predict(features)[0]
+        probabilities = model.predict_proba(features)[0]
+        confidence = float(max(probabilities))
 
-except Exception as e:
-    raise HTTPException(
-        status_code=500,
-        detail=f"Model inference failed: {str(e)}"
-    )
-
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Model inference failed: {str(e)}"
+        )
 
     label = "AI-generated" if prediction == 1 else "Human"
 
-return {
-    "classification": label,
-    "confidence_score": round(confidence, 2),
-    "explanation": [
-        "Prediction generated using trained ML model",
-        "Numeric audio features analyzed"
-    ]
-}
+    return {
+        "classification": label,
+        "confidence_score": round(confidence, 2),
+        "explanation": [
+            "Prediction generated using trained ML model",
+            "Numeric audio features analyzed"
+        ]
+    }
+
+
 
 
 
