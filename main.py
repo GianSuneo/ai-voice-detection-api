@@ -1,6 +1,18 @@
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
+import pickle
+import os
+# -------- MODEL LOADING --------
+MODEL_PATH = "model.pkl"
+
+try:
+    with open(MODEL_PATH, "rb") as f:
+        model = pickle.load(f)
+    print("Model loaded successfully")
+except Exception as e:
+    model = None
+    print("Model loading failed:", e)
 
 app = FastAPI()
 
@@ -43,5 +55,6 @@ def detect_voice(
             "Absence of natural speech pauses"
         ]
     }
+
 
 
