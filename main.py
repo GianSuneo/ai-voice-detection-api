@@ -1,7 +1,7 @@
 from fastapi import FastAPI, HTTPException, Header
 from pydantic import BaseModel
 from typing import Optional
-import pickle
+import joblib
 import os
 
 app = FastAPI()
@@ -10,15 +10,14 @@ app = FastAPI()
 API_KEY = "my-secret-api-key"
 
 # -------- MODEL LOADING --------
-MODEL_PATH = "model.pkl"
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
 
 try:
-    with open(MODEL_PATH, "rb") as f:
-        model = pickle.load(f)
-    print("✅ Model loaded successfully")
+    model = joblib.load(MODEL_PATH)
+    print("Model loaded successfully")
 except Exception as e:
     model = None
-    print("❌ Model loading failed:", e)
+    print("Model loading failed:", e)
 
 
 
@@ -87,6 +86,7 @@ return {
         "Numeric audio features analyzed"
     ]
 }
+
 
 
 
