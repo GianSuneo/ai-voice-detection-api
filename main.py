@@ -3,8 +3,14 @@ from pydantic import BaseModel
 from typing import Optional
 import pickle
 import os
+
+app = FastAPI()
+
+# -------- CONFIG --------
+API_KEY = "my-secret-api-key"
+
 # -------- MODEL LOADING --------
-MODEL_PATH = "model.pkl"
+MODEL_PATH = os.path.join(os.path.dirname(__file__), "model.pkl")
 
 try:
     with open(MODEL_PATH, "rb") as f:
@@ -13,11 +19,6 @@ try:
 except Exception as e:
     model = None
     print("Model loading failed:", e)
-
-app = FastAPI()
-
-# -------- CONFIG --------
-API_KEY = "my-secret-api-key"  # you can change this later
 
 
 # -------- INPUT SCHEMA --------
@@ -38,35 +39,28 @@ def detect_voice(
     data: VoiceInput,
     x_api_key: Optional[str] = Header(None)
 ):
-    # Check API key
+    # API key check
     if x_api_key != API_KEY:
         raise HTTPException(status_code=401, detail="Invalid or missing API key")
 
-    # Temporary fake logic (model will be added later)
+    # Basic input check
     if len(data.audio_base64) < 20:
         raise HTTPException(status_code=400, detail="Audio data too short")
-    # -------- MODEL INFERENCE --------
+
+    # Model check
     if model is None:
-        raise HTTPException(
-            status_code=500,
-            detail="Model not loaded"
-        )
+        raise HTTPException(status_code=500, detail="Model not loaded")
 
+    # -------- MODEL INFERENCE (TEMP) --------
     try:
-        # TEMPORARY placeholder input
-        dummy_input = [[0.0]]  # will replace with real features later
-        prediction = model.predict(dummy_input)
-
-        # Assume: 1 = AI, 0 = Human
-        label = "AI-generated" if prediction[0] == 1 else "Human"
-
+        dummy_input = [[0.0]]  # placeholder until real features
+        prediction = model.predict(dummy_input)[0]
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail=f"Model inference failed: {str(e)}"
-        )
+        raise HTTPException(status_code=500, detail=f"Model inference failed: {e}")
 
-       return {
+    label = "AI-generated" if prediction == 1 else "Human"
+
+    return {
         "classification": label,
         "confidence_score": 0.85,
         "explanation": [
@@ -74,6 +68,7 @@ def detect_voice(
             "Audio features analyzed"
         ]
     }
+
 
 
 
