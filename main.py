@@ -77,14 +77,15 @@ except Exception as e:
 
     label = "AI-generated" if prediction == 1 else "Human"
 
-    return {
-        "classification": label,
-        "confidence_score": 0.85,
-        "explanation": [
-            "Prediction generated using ML model",
-            "Audio features analyzed"
-        ]
-    }
+return {
+    "classification": label,
+    "confidence_score": round(confidence, 2),
+    "explanation": [
+        "Prediction generated using trained ML model"
+    ]
+}
+
+
 
 
 
