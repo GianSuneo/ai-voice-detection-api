@@ -52,11 +52,28 @@ def detect_voice(
         raise HTTPException(status_code=500, detail="Model not loaded")
 
     # -------- MODEL INFERENCE (TEMP) --------
-    try:
-        dummy_input = [[0.0]]  # placeholder until real features
-        prediction = model.predict(dummy_input)[0]
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Model inference failed: {e}")
+   # -------- MODEL INFERENCE (TEMP) --------
+try:
+    # TEMP feature vector (must match training feature count = 7)
+    features = [[
+        0.0,  # pitch
+        0.0,  # mfcc_mean
+        0.0,  # spectral_flatness
+        0.0,  # zcr
+        0.0,  # rms
+        0.0,  # centroid
+        0.0   # bandwidth
+    ]]
+
+    prediction = model.predict(features)[0]
+    confidence = float(model.predict_proba(features)[0].max())
+
+except Exception as e:
+    raise HTTPException(
+        status_code=500,
+        detail=f"Model inference failed: {str(e)}"
+    )
+
 
     label = "AI-generated" if prediction == 1 else "Human"
 
@@ -68,6 +85,7 @@ def detect_voice(
             "Audio features analyzed"
         ]
     }
+
 
 
 
