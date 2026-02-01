@@ -4,6 +4,8 @@ scikit-learn
 numpy
 joblib
 pydantic
+librosa
+soundfile
 
 
 
