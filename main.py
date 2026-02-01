@@ -69,9 +69,9 @@ def detect_voice(
             detail="Model not loaded"
         )
 
-    # ---- MODEL INFERENCE (TEMP FEATURES) ----
+    # ---- MODEL INFERENCE ----
     try:
-        # Placeholder feature vector (must match training shape = 7)
+        # Placeholder feature vector (must match training feature count = 7)
         features = [[
             0.0,  # pitch
             0.0,  # mfcc_mean
@@ -84,7 +84,6 @@ def detect_voice(
 
         prediction = model.predict(features)[0]
         probabilities = model.predict_proba(features)[0]
-        confidence = float(max(probabilities))
 
     except Exception as e:
         raise HTTPException(
@@ -92,20 +91,18 @@ def detect_voice(
             detail=f"Model inference failed: {str(e)}"
         )
 
+    # ---- OUTPUT FORMATTING ----
     label = "AI-generated" if prediction == 1 else "Human"
+    confidence_score = round(float(max(probabilities)), 2)
 
-    # ---- RESPONSE ----
     return {
         "classification": label,
-        "confidence_score": round(confidence, 2),
+        "confidence_score": confidence_score,
         "explanation": [
             "Prediction generated using trained machine learning model",
-            "Audio converted to numeric features before inference"
+            "Confidence score derived from model probability distribution"
         ]
     }
-
-
-
 
 
 
